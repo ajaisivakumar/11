@@ -8,16 +8,30 @@ import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { GoogleButton } from './GoogleButton';
+import React, { useState, useEffect } from 'react';
 
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
+    useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      refreshUser().then(() => {
+        navigate('/', { replace: true });
+      });
+    }
+  }, [location, navigate, refreshUser]);
+
+
+  
   const {
     register,
     handleSubmit,
